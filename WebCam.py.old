@@ -1,0 +1,62 @@
+import Image
+import ImageFont
+import ImageDraw
+import sys
+import opencv
+import cv
+#from opencv import highgui 
+import time
+import datetime
+from threading import Thread
+
+class FakeTimer(Thread):
+    def __init__(self, action):
+        self.action = action
+    def start(self):
+        while True:
+            self.action()
+            time.sleep(20)
+
+def configCapture():
+    cv.SetCaptureProperty(cap, cv.CV_CAP_PROP_FRAME_WIDTH, 640)
+    cv.SetCaptureProperty(cap, cv.CV_CAP_PROP_FRAME_HEIGHT, 480)
+    #cv.SetCaptureProperty(cap, cv.CV_CAP_PROP_FORMAT, cv.IPL_DEPTH_32F)
+    # highgui.cvSetCaptureProperty(camera, highgui.CV_CAP_PROP_FRAME_HEIGHT, 480)
+    # highgui.cvSetCaptureProperty(camera, highgui.CV_CAP_PROP_FRAME_WIDTH, 640)
+
+def capture():
+    print('Capturing webcam image...')
+    image = getImage()
+    image.save('webcam.jpg')
+    # if image is None:
+    #     print 'Could not capture image!'
+    #     return
+    #renderText(image)
+    #image.save('webcam', 'JPEG')
+
+def getImage():
+    image = cv.QueryFrame(cap)
+    image = cv.GetMat(image)
+    # return opencv.adaptors.Ipl2PIL(image)
+    # image = highgui.cvQueryFrame(camera)
+    # #image = opencv.cvGetMat(image)
+    return opencv.adaptors.Ipl2PIL(image) 
+
+def renderText(image):
+    #font = ImageFont.truetype('Georgia.ttf', 25) #ImageFont.load('arial')
+    draw = ImageDraw.Draw(image)
+    fontAddress = ImageFont.load_default() # todo
+    fontDate = ImageFont.load_default() # todo
+    draw.text((10, 10), str(datetime.datetime.now()), font=fontDate)
+    draw.text((10, 35), 'Boulevard East, Weehawken, NJ', font=fontAddress)
+
+# camera = highgui.cvCreateCameraCapture(-1)
+
+# if not camera:
+#     print 'Error opening camera!'
+#     sys.exit(1
+cap = cv.CaptureFromCAM(2)  
+configCapture()
+
+timer = FakeTimer(capture)
+timer.start()
